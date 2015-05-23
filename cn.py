@@ -23,8 +23,7 @@ def read_data():
     global players
     players=[]
     f=open('data.cbn','r')
-    name=f.readline()
-    name=name[:len(name)-1]
+    name=f.readline().rstrip('\n')
     current="lol"
     while current!='':
         current=f.readline().rstrip('\n')
