@@ -1,27 +1,44 @@
 import sys
 
 class player:
-    name=""
+    def __init__(self,name=""):
+        self.name=name
+        self.id=None
+
     def read_from_file(self,f):
         self.name=f.readline().rstrip('\n')
-        
+        self.id=int(f.readline().rstrip('\n'))
+
     def write_to_file(self,f):
         f.write("player\n")
         f.write(self.name+'\n')
-        
+        f.write(str(self.id)+'\n')
+
     def get_name(self):
         return self.name
-    
+
     def set_name(self,new_name=""):
         self.name=new_name
 
+    def get_id(self):
+        return self.id
+
+    def set_id(self,id):
+        self.id=id
+
     def print_me(self):
-        return self.name
+        return self.name+" "+str(self.id)
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self,other):
+        return self.get_name()==other.get_name()
 
 def read_data():
     global name
     global players
-    players=[]
+    players=set()
     f=open('data.cbn','r')
     name=f.readline().rstrip('\n')
     current="lol"
@@ -30,7 +47,7 @@ def read_data():
         if current=='player':
             x=player()
             x.read_from_file(f)
-            players.append(x)
+            players.add(x)
     f.close()
 
 def first_time():
@@ -53,29 +70,33 @@ def exit_all():
 def set_name():
     global name
     name=input("Your name is: ")
-    print("Hello, "+name+"!")
 
 def help_me():
     #horrible help function
     global commands
     print("List of commands:",
-          "\n".join(sorted([key for key in commands])),
+          "\n".join([key for key in commands]),
           sep="\n")
 
 def add_player():
     global players
-    new_name=input("Name: ").lower()
-    x=player()
-    x.set_name(new_name)
-    players.append(x)
+    x=player(input("Name: ").lower())
+    if x in players:
+        print("Player already exists!")
+    else:
+        while x.get_id()==None:
+            try:
+                x.set_id(int(input("Id:")))
+            except ValueError:
+                print("Id needs to be a number!")
+        players.add(x)
 
 def player_exists():
     global players
-    new_name=input("Name: ").lower()
-    for x in players:
-        if x.get_name()==new_name:
-            print("He or she exists")
-            break
+    x=player(input("Name: ").lower())
+    if x in players:
+        print("He or she exists")
+        return
     else:
         print("Sorry, can't find him or her.")
 
@@ -93,13 +114,29 @@ def delete_forever():
                    "player? Say 'yes' if so: ").lower()
     if response!='yes':
         return
-    new_name=input("Name: ").lower()
-    players2=[x for x in players if x.get_name()!=new_name]
-    if len(players2)==len(players):
-       print("Sorry, can't find him or her.")
-    else:
-        players=players2
+    x=player(input("Name: ").lower())
+    if x in players:
+        players.remove(x)
         print("Done!")
+    else:
+        print("Sorry, can't find him or her.")
+
+def change_id():
+    global players
+    #TODO: reimplement this
+    #It currently discards all info except name.
+    #I only want to discard id
+    x=player(input("Name: ").lower())
+    if x in players:
+        players.remove(x)
+        while x.get_id()==None:
+            try:
+                x.set_id(int(input("Id:")))
+            except ValueError:
+                print("Id needs to be a number!")
+        players.add(x)
+    else:
+        print("Sorry, can't find him or her.")
 
 def main():
     global commands
@@ -112,7 +149,8 @@ def main():
         'save':save,
         'check':player_exists,
         'list':list_all,
-        'delete':delete_forever}
+        'delete':delete_forever,
+        'id':change_id}
     try:
         read_data()
     except FileNotFoundError:
@@ -126,6 +164,6 @@ def main():
         if proc != None: proc()
         else: print("Command not found. Plese try again.",
                     "Write 'help' for a list of commands.")
-        
+
 if __name__ == '__main__':
     main()
