@@ -33,7 +33,10 @@ class player:
         return hash(self.name)
 
     def __eq__(self,other):
-        return self.get_name()==other.get_name()
+        try:
+            return self.get_name()==other.get_name()
+        except AttributeError:
+            return NotImplemented
 
 def read_data():
     global name
@@ -66,6 +69,26 @@ def exit_all():
     print("Goodbye!")
     sys.exit()
 
+class grab:
+    def __init__(self,value):
+        self.value=value
+    def __hash__(self):
+        return hash(self.value)
+    def __eq__(self,other):
+        if self.value.get_name()==other.get_name():
+            self.real_value=other
+            return True
+        return False
+    def grab_me(self):
+        return self.real_value
+
+def get_player(name):
+    global players
+    x=grab(player(name))
+    if x in players:
+        return x.grab_me()
+    return None
+
 #commands
 def set_name():
     global name
@@ -80,10 +103,12 @@ def help_me():
 
 def add_player():
     global players
-    x=player(input("Name: ").lower())
-    if x in players:
+    s=input("Name: ").lower()
+    x=get_player(s)
+    if x != None:
         print("Player already exists!")
     else:
+        x=player(s)
         while x.get_id()==None:
             try:
                 x.set_id(int(input("Id:")))
@@ -93,12 +118,11 @@ def add_player():
 
 def player_exists():
     global players
-    x=player(input("Name: ").lower())
-    if x in players:
-        print("He or she exists")
-        return
+    x=get_player(input("Name: ").lower())
+    if x != None:
+        print("Player exists")
     else:
-        print("Sorry, can't find him or her.")
+        print("Sorry, can't find player.")
 
 def list_all():
     global players
@@ -114,29 +138,24 @@ def delete_forever():
                    "player? Say 'yes' if so: ").lower()
     if response!='yes':
         return
-    x=player(input("Name: ").lower())
-    if x in players:
-        players.remove(x)
-        print("Done!")
-    else:
-        print("Sorry, can't find him or her.")
+    x=get_player(input("Name: ").lower())
+    if x == None:
+        print("Sorry, can't find player.")
+        return
+    players.remove(x)
+    print("Done!")
 
 def change_id():
     global players
-    #TODO: reimplement this
-    #It currently discards all info except name.
-    #I only want to discard id
-    x=player(input("Name: ").lower())
-    if x in players:
-        players.remove(x)
-        while x.get_id()==None:
-            try:
-                x.set_id(int(input("Id:")))
-            except ValueError:
-                print("Id needs to be a number!")
-        players.add(x)
-    else:
-        print("Sorry, can't find him or her.")
+    x=get_player(input("Name:").lower())
+    if x==None:
+        print("Player not found")
+    original_id=x.get_id()
+    while original_id==x.get_id():
+        try:
+            x.set_id(int(input("Id:")))
+        except ValueError:
+            print("Id needs to be a number!")
 
 def main():
     global commands
