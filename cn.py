@@ -69,21 +69,20 @@ def exit_all():
     print("Goodbye!")
     sys.exit()
 
-class grab:
-    def __init__(self,value):
-        self.value=value
-    def __hash__(self):
-        return hash(self.value)
-    def __eq__(self,other):
-        if self.value.get_name()==other.get_name():
-            self.real_value=other
-            return True
-        return False
-    def grab_me(self):
-        return self.real_value
-
 def get_player(name):
     global players
+    class grab:
+        def __init__(self,value):
+            self.value=value
+        def __hash__(self):
+            return hash(self.value)
+        def __eq__(self,other):
+            if self.value.get_name()==other.get_name():
+                self.real_value=other
+                return True
+            return False
+        def grab_me(self):
+            return self.real_value
     x=grab(player(name))
     if x in players:
         return x.grab_me()
