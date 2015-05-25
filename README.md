@@ -1,2 +1,2 @@
 # cNations
-who cares?
+CyberNations tool for tech deals and/or trade circles.
