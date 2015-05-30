@@ -25,8 +25,8 @@ class player:
             f.write(i+'\n')
 
     def print_me(self):
-        all=self.name+" "+str(self.id)+" FAC="+str(self.fac)+'\n'
-        all+=' '.join(self.slots)
+        all='Name: '+self.name+", Id: "+str(self.id)+", FAC: "+str(self.fac)
+        all+=', Slots: ('+', '.join(self.slots)+').'
         return all
 
     def __hash__(self):
@@ -93,11 +93,11 @@ def set_name():
     global name
     name=input("Your name is: ")
 
-def help_me():
+def all_commands():
     #horrible help function
     global commands
     print("List of commands:",
-          "\n".join([key for key in commands]),
+          ", ".join([key for key in commands]),
           sep="\n")
 
 def add_player():
@@ -177,26 +177,21 @@ def change_slots():
     if x==None:
         print("Player not found")
         return
-    slot=None
-    while not slot:
-        try:
-            slot=int(input("Slot: "))
-            if not 1<=slot<=5:
-                raise ValueError
-        except ValueError:
-            print("Slot needs to be a number!")
-    name=input("Slot state:").lower()
-    while not name in player.states:
-        print("Invalid state!")
-        name=input("Slot state:").lower()
-    x.slots[slot-1]=name
+    for i in range(5):
+        name=input("Slot #"+str(i+1)+": ")
+        while not name in player.states and len(name)>0:
+            print("Invalid state.")
+            name=input("Slot #"+str(i+1)+": ")
+        if len(name) == 0:
+            continue
+        x.slots[i]=name
 
 def main():
     global commands
     global name
     commands={
         'exit':exit_all,
-        'help':help_me,
+        'commands':all_commands,
         'name':set_name,
         'add':add_player,
         'save':save,
@@ -218,7 +213,7 @@ def main():
         proc=commands.get(s)
         if proc != None: proc()
         else: print("Command not found. Plese try again.",
-                    "Write 'help' for a list of commands.")
+                    "Write 'commands' for a list of commands.")
 
 if __name__ == '__main__':
     main()
