@@ -1,24 +1,33 @@
 import sys
 
 class player:
+    
+    states=['mo','mi','to','ti','bo','bi','mito','moti','tomi','timo','none']
+    
     def __init__(self,name=""):
         self.name=name
         self.id=None
         self.fac=False
+        self.slots=['None' for i in range(1,6)]
 
     def read_from_file(self,f):
         self.name=f.readline().rstrip('\n')
         self.id=int(f.readline().rstrip('\n'))
         self.fac=f.readline().rstrip('\n')=='True'
+        self.slots=[f.readline().rstrip('\n') for i in range(1,6)]
 
     def write_to_file(self,f):
         f.write("player\n")
         f.write(self.name+'\n')
         f.write(str(self.id)+'\n')
         f.write(str(self.fac)+'\n')
+        for i in self.slots:
+            f.write(i+'\n')
 
     def print_me(self):
-        return self.name+" "+str(self.id)+" Fac="+str(self.fac)
+        all=self.name+" "+str(self.id)+" FAC="+str(self.fac)+'\n'
+        all+=' '.join(self.slots)
+        return all
 
     def __hash__(self):
         return hash(self.name)
@@ -61,6 +70,8 @@ def exit_all():
     sys.exit()
 
 def get_player(name):
+    #Get the adress of the real player
+    #UnPythonic hack, but it's the only way
     global players
     class grab:
         def __init__(self,value):
@@ -138,6 +149,7 @@ def change_id():
     x=get_player(input("Name: ").lower())
     if x==None:
         print("Player not found")
+        return
     original_id=x.id
     while original_id==x.id:
         try:
@@ -150,6 +162,7 @@ def change_fac():
     x=get_player(input("Name: ").lower())
     if x==None:
         print("Player not found")
+        return
     response=input("Does player have FAC (yes/no): ").lower()
     while response != "yes" and response != "no":
         response=input("Does player have FAC (yes/no): ").lower()
@@ -157,6 +170,26 @@ def change_fac():
         x.fac=True
     else:
         x.fac=False
+
+def change_slots():
+    global players
+    x=get_player(input("Name: ").lower())
+    if x==None:
+        print("Player not found")
+        return
+    slot=None
+    while not slot:
+        try:
+            slot=int(input("Slot: "))
+            if not 1<=slot<=5:
+                raise ValueError
+        except ValueError:
+            print("Slot needs to be a number!")
+    name=input("Slot state:").lower()
+    while not name in player.states:
+        print("Invalid state!")
+        name=input("Slot state:").lower()
+    x.slots[slot-1]=name
 
 def main():
     global commands
@@ -171,7 +204,8 @@ def main():
         'list':list_all,
         'delete':delete_forever,
         'id':change_id,
-        'fac':change_fac}
+        'fac':change_fac,
+        'slots':change_slots}
     try:
         read_data()
     except FileNotFoundError:
