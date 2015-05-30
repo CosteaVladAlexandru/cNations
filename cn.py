@@ -8,7 +8,7 @@ class player:
         self.name=name
         self.id=None
         self.fac=False
-        self.slots=['None' for i in range(1,6)]
+        self.slots=['none' for i in range(1,6)]
 
     def read_from_file(self,f):
         self.name=f.readline().rstrip('\n')
@@ -119,7 +119,7 @@ def player_exists():
     global players
     x=get_player(input("Name: ").lower())
     if x != None:
-        print("Player exists")
+        print(x.print_me())
     else:
         print("Sorry, can't find player.")
 
