@@ -24,9 +24,10 @@ class player:
         for i in self.slots:
             f.write(i+'\n')
 
-    def print_me(self):
-        all='Name: '+self.name+", Id: "+str(self.id)+", FAC: "+str(self.fac)
-        all+=', Slots: ('+', '.join(self.slots)+').'
+    def print_me(self,sep=', '):
+        all='Name: '+self.name+sep+"Id: "+str(self.id)
+        all+=sep+"FAC: "+str(self.fac)+sep
+        all+='Slots: ('+', '.join(self.slots)+').'
         return all
 
     def __hash__(self):
@@ -71,7 +72,7 @@ def exit_all():
 
 def get_player(name):
     #Get the object of the player
-    #UnPythonic hack, but it's the only way i know
+    #Unpythonic hack, but it's the only way i know
     global players
     class grab:
         def __init__(self,value):
@@ -114,14 +115,6 @@ def add_player():
                 print("Id needs to be a number!")
         players.add(x)
 
-def player_exists():
-    global players
-    x=get_player(input("Name: ").lower())
-    if x != None:
-        print(x.print_me())
-    else:
-        print("Sorry, can't find player.")
-
 def list_all():
     global players
     if len(players)==0:
@@ -132,7 +125,7 @@ def list_all():
 
 def delete_forever():
     global players
-    response=input("Are you sure you want to permanently delete a "+
+    response=input("Are you sure you want to permanently delete a "
                    "player? Say 'yes' if so: ").lower()
     if response!='yes':
         return
@@ -143,12 +136,7 @@ def delete_forever():
     players.remove(x)
     print("Done!")
 
-def change_id():
-    global players
-    x=get_player(input("Name: ").lower())
-    if x==None:
-        print("Player not found")
-        return
+def change_id(x):
     original_id=x.id
     while original_id==x.id:
         try:
@@ -156,12 +144,7 @@ def change_id():
         except ValueError:
             print("Id needs to be a number!")
 
-def change_fac():
-    global players
-    x=get_player(input("Name: ").lower())
-    if x==None:
-        print("Player not found")
-        return
+def change_fac(x):
     response=input("Does player have FAC (yes/no): ").lower()
     while response != "yes" and response != "no":
         response=input("Does player have FAC (yes/no): ").lower()
@@ -170,12 +153,7 @@ def change_fac():
     else:
         x.fac=False
 
-def change_slots():
-    global players
-    x=get_player(input("Name: ").lower())
-    if x==None:
-        print("Player not found")
-        return
+def change_slots(x):
     for i in range(5):
         name=input("Slot #"+str(i+1)+": ")
         while not name in player.states and len(name)>0:
@@ -184,6 +162,26 @@ def change_slots():
         if len(name) == 0:
             continue
         x.slots[i]=name
+
+def edit_player():
+    global players
+    edits={
+        'id':change_id,
+        'fac':change_fac,
+        'slots':change_slots}
+    x=get_player(input("Name: ").lower())
+    while x == None:
+        print("Sorry, can't find player.")
+        x=get_player(input("Name: ").lower())
+    print("Here are info about the player:")
+    print(x.print_me(sep='\n'))
+    s=input("What do you want to edit: ").lower()
+    proc=edits.get(s)
+    while proc==None:
+        print("That value doesn't exist.")
+        s=input("What do you want to edit: ").lower()
+        proc=edits.get(s)
+    proc(x)
 
 def main():
     global commands
@@ -194,12 +192,9 @@ def main():
         'name':set_name,
         'add':add_player,
         'save':save,
-        'check':player_exists,
+        'edit':edit_player,
         'list':list_all,
-        'delete':delete_forever,
-        'id':change_id,
-        'fac':change_fac,
-        'slots':change_slots}
+        'delete':delete_forever}
     try:
         read_data()
     except FileNotFoundError:
@@ -211,7 +206,7 @@ def main():
             continue
         proc=commands.get(s)
         if proc != None: proc()
-        else: print("Command not found. Plese try again.",
+        else: print("Command not found. Plese try again. "
                     "Write 'commands' for a list of commands.")
 
 if __name__ == '__main__':
