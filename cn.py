@@ -70,8 +70,8 @@ def exit_all():
     sys.exit()
 
 def get_player(name):
-    #Get the adress of the real player
-    #UnPythonic hack, but it's the only way
+    #Get the object of the player
+    #UnPythonic hack, but it's the only way i know
     global players
     class grab:
         def __init__(self,value):
@@ -94,7 +94,6 @@ def set_name():
     name=input("Your name is: ")
 
 def all_commands():
-    #horrible help function
     global commands
     print("List of commands:",
           ", ".join([key for key in commands]),
