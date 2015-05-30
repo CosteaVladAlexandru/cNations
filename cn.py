@@ -25,10 +25,10 @@ class player:
             f.write(i+'\n')
 
     def print_me(self,sep=', '):
-        all='Name: '+self.name+sep+"Id: "+str(self.id)
-        all+=sep+"FAC: "+str(self.fac)+sep
-        all+='Slots: ('+', '.join(self.slots)+').'
-        return all
+        return sep.join(['Name: '+self.name,
+                         'Id: '+str(self.id),
+                         'FAC: '+str(self.fac),
+                         'Slots: ('+', '.join(self.slots)])
 
     def __hash__(self):
         return hash(self.name)
@@ -45,13 +45,13 @@ def read_data():
     players=set()
     f=open('data.cbn','r')
     name=f.readline().rstrip('\n')
-    current="lol"
+    current=f.readline().rstrip('\n')
     while current!='':
-        current=f.readline().rstrip('\n')
         if current=='player':
             x=player()
             x.read_from_file(f)
             players.add(x)
+        current=f.readline().rstrip('\n')
     f.close()
 
 def first_time():
@@ -208,6 +208,7 @@ def main():
         if proc != None: proc()
         else: print("Command not found. Plese try again. "
                     "Write 'commands' for a list of commands.")
+        print()
 
 if __name__ == '__main__':
     main()
