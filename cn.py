@@ -1,8 +1,11 @@
 import sys
+import webbrowser
+
+URL='http://www.cybernations.net/nation_drill_display.asp?Nation_ID='
 
 class player:
     
-    states=['mo','mi','to','ti','bo','bi','mito','moti','tomi','timo','none']
+    STATES=['mo','mi','to','ti','bo','bi','mito','moti','tomi','timo','none']
     
     def __init__(self,name=""):
         self.name=name
@@ -28,7 +31,7 @@ class player:
         return sep.join(['Name: '+self.name,
                          'Id: '+str(self.id),
                          'FAC: '+str(self.fac),
-                         'Slots: ('+', '.join(self.slots)])
+                         'Slots: ('+', '.join(self.slots)]+')')
 
     def __hash__(self):
         return hash(self.name)
@@ -156,7 +159,7 @@ def change_fac(x):
 def change_slots(x):
     for i in range(5):
         name=input("Slot #"+str(i+1)+": ")
-        while not name in player.states and len(name)>0:
+        while not name in player.STATES and len(name)>0:
             print("Invalid state.")
             name=input("Slot #"+str(i+1)+": ")
         if len(name) == 0:
@@ -183,6 +186,15 @@ def edit_player():
         proc=edits.get(s)
     proc(x)
 
+def open_page():
+    global players
+    x=''
+    while not x:
+        if x!='':
+            print('Player not found')
+        x=get_player(input("Name: ").lower())
+    webbrowser.open(URL+str(x.id))
+
 def main():
     global commands
     global name
@@ -194,7 +206,8 @@ def main():
         'save':save,
         'edit':edit_player,
         'list':list_all,
-        'delete':delete_forever}
+        'delete':delete_forever,
+        'link':open_page}
     try:
         read_data()
     except FileNotFoundError:
