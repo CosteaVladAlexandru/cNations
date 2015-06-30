@@ -170,7 +170,7 @@ def edit_player(x):
         'fac':change_fac,
         'slots':change_slots}
     s=input("What do you want to edit: ").lower()
-    proc=commands.get(s)
+    proc=edits.get(s)
     while proc==None:
         print("That command doesn't exist.")
         s=input("What do you want to edit: ").lower()
