@@ -31,7 +31,7 @@ class player:
         return sep.join(['Name: '+self.name,
                          'Id: '+str(self.id),
                          'FAC: '+str(self.fac),
-                         'Slots: ('+', '.join(self.slots)]+')')
+                         'Slots: ('+', '.join(self.slots)+')'])
 
     def __hash__(self):
         return hash(self.name)
@@ -59,6 +59,7 @@ def read_data():
 
 def first_time():
     set_name()
+    print('For a list of commands, type "commands"')
 
 def save():
     f=open('data.cbn','w')
@@ -126,15 +127,11 @@ def list_all():
     for x in players:
         print(x.print_me())
 
-def delete_forever():
+def delete_forever(x):
     global players
     response=input("Are you sure you want to permanently delete a "
                    "player? Say 'yes' if so: ").lower()
     if response!='yes':
-        return
-    x=get_player(input("Name: ").lower())
-    if x == None:
-        print("Sorry, can't find player.")
         return
     players.remove(x)
     print("Done!")
@@ -166,34 +163,48 @@ def change_slots(x):
             continue
         x.slots[i]=name
 
-def edit_player():
+def edit_player(x):
     global players
     edits={
         'id':change_id,
         'fac':change_fac,
         'slots':change_slots}
+    s=input("What do you want to edit: ").lower()
+    proc=commands.get(s)
+    while proc==None:
+        print("That command doesn't exist.")
+        s=input("What do you want to edit: ").lower()
+        proc=edits.get(s)
+    proc(x)
+    
+def open_page(x):
+    global players
+    webbrowser.open(URL+str(x.id))
+
+def open_player():
+    global players
+    commands={
+        'edit':edit_player,
+        'link':open_page,
+        'delete':delete_forever}
     x=get_player(input("Name: ").lower())
     while x == None:
         print("Sorry, can't find player.")
         x=get_player(input("Name: ").lower())
+    print()
     print("Here are info about the player:")
     print(x.print_me(sep='\n'))
-    s=input("What do you want to edit: ").lower()
-    proc=edits.get(s)
+    print()
+    print("Commands are:",", ".join([key for key in commands]))
+    print()
+    s=input("What do you want to do: ").lower()
+    proc=commands.get(s)
     while proc==None:
-        print("That value doesn't exist.")
-        s=input("What do you want to edit: ").lower()
-        proc=edits.get(s)
+        print("That command doesn't exist.")
+        s=input("What do you want to do: ").lower()
+        proc=commands.get(s)
     proc(x)
 
-def open_page():
-    global players
-    x=''
-    while not x:
-        if x!='':
-            print('Player not found')
-        x=get_player(input("Name: ").lower())
-    webbrowser.open(URL+str(x.id))
 
 def main():
     global commands
@@ -204,10 +215,8 @@ def main():
         'name':set_name,
         'add':add_player,
         'save':save,
-        'edit':edit_player,
-        'list':list_all,
-        'delete':delete_forever,
-        'link':open_page}
+        'open':open_player,
+        'list':list_all}
     try:
         read_data()
     except FileNotFoundError:
